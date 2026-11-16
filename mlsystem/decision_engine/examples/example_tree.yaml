@@ -1,0 +1,29 @@
+# Example decision tree: act on a signal only if it is confident enough and the cooldown has passed.
+# "id" picks the node class from the registry; "key" names this node within the tree.
+metadata:
+  name: example-signal-gate
+  version: 1
+start: confidence
+nodes:
+  - key: confidence
+    id: signal_confidence
+    description: Signal must be confident enough
+    config:
+      min_confidence: 0.6
+    transitions:
+      pass: cooldown
+      fail: skip
+  - key: cooldown
+    id: cooldown_guard
+    description: Do not act again too soon
+    config:
+      cooldown_minutes: 30
+    transitions:
+      pass: act
+      fail: skip
+  - key: act
+    id: record_intent
+    description: Record the intent to act
+  - key: skip
+    id: record_skip
+    description: Do nothing this cycle
