@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block controls %}<button id="autoToggle" type="button" aria-pressed="true">Auto update: on</button>{% endblock %}
+{% block content %}
+    <div class="indicators">
+        <div class="card" id="card-signal">
+            <h3>Signal for next bar</h3>
+            <div class="big" data-field="signal-direction">–</div>
+            <div class="sub" data-field="signal-detail"></div>
+        </div>
+        <div class="card">
+            <h3>Recent directional calls</h3>
+            <div class="big" data-field="calls-rate">–</div>
+            <div class="sub" data-field="calls-detail"></div>
+        </div>
+        <div class="card">
+            <h3>Combos in the ensemble</h3>
+            <div class="big" data-field="combos-admitted">–</div>
+            <div class="sub" data-field="combos-detail"></div>
+        </div>
+        <div class="card" id="card-decision">
+            <h3>Decision tree</h3>
+            <div class="big" data-field="decision-outcome">–</div>
+            <ul class="trail" data-field="decision-trail"></ul>
+        </div>
+    </div>
+
+    <section class="dashboard-group">
+        <h2>Prediction: {{ snapshot.meta.target }} <span class="pill">{{ snapshot.meta.interval }}</span></h2>
+        <div class="chart-wrap">
+            <div class="legend">
+                <span><i class="swatch actual"></i>Actual</span>
+                <span><i class="swatch predicted"></i>Ensemble prediction (made one bar earlier)</span>
+                <span class="note">No prediction is drawn until a combo has earned its vote.</span>
+            </div>
+            <div id="chart" class="chart" role="img" aria-label="Actual close and ensemble prediction"></div>
+            <div id="chart-tip" class="chart-tip" hidden></div>
+        </div>
+
+        <div class="filters">
+            <label>Model
+                <select id="filter-model"><option value="">All</option></select>
+            </label>
+            <label title="Show only predictions made while the combo's score was at least this value">Min combo score
+                <input id="filter-score" type="number" min="0" max="1" step="0.01" value="0">
+            </label>
+            <label>Result
+                <select id="filter-result"><option value="">All</option><option value="hit">Right direction</option><option value="miss">Wrong direction</option></select>
+            </label>
+            <span class="row-count" id="row-count"></span>
+            <button id="export-csv" type="button">Export CSV</button>
+        </div>
+        <div class="table-wrap">
+            <table class="compact" id="predictions">
+                <thead>
+                    <tr>
+                        <th data-key="live_time">Live datetime</th>
+                        <th data-key="live_value" class="num">Live value</th>
+                        <th data-key="predict_time">Predict datetime</th>
+                        <th data-key="predicted_value" class="num">Predicted value</th>
+                        <th data-key="diff_pct" class="num">Diff %</th>
+                        <th data-key="interval">Interval</th>
+                        <th data-key="model">Model</th>
+                        <th data-key="combo_score" class="num">Combo score</th>
+                        <th data-key="error_pct" class="num">Error %</th>
+                        <th data-key="hit">Direction</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

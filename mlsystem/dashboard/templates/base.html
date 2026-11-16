@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ML Predict · Showcase</title>
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+    <script>
+        (function () {
+            var saved = null;
+            try { saved = localStorage.getItem("theme"); } catch (e) {}
+            var dark = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.dataset.theme = dark ? "dark" : "light";
+        })();
+    </script>
+</head>
+<body>
+    <div class="header-container">
+        <h1>ML Predict <span class="subtitle">showcase</span></h1>
+        <span id="status-indicator" class="status-chip" title="Replaying a synthetic series">Demo replay</span>
+    </div>
+    <div class="controls">
+        <button id="themeToggle" type="button">Dark mode</button>
+        {% block controls %}{% endblock %}
+        <a class="link-btn{% if page == 'dashboard' %} active{% endif %}" href="{{ url_for('index') }}">Predictions</a>
+        <a class="link-btn{% if page == 'health' %} active{% endif %}" href="{{ url_for('model_health') }}">Model Health</a>
+        <a class="link-btn" href="{{ url_for('api_snapshot') }}" target="_blank" rel="noopener">Snapshot JSON</a>
+        <span class="as-of">as of <span id="as-of">{{ snapshot.meta.as_of }}</span> (synthetic clock)</span>
+    </div>
+    <p class="notice"><strong>Synthetic data.</strong> Every number on this page comes from a seeded random series and
+        stand-in models. It shows how the dashboard is laid out, not how the real system performs.</p>
+    {% block content %}{% endblock %}
+    <script id="snapshot" type="application/json">{{ snapshot|tojson }}</script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

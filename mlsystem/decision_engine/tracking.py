@@ -79,7 +79,7 @@ class DecisionTracker:
         # Get current time in ET timezone
         et_tz = ZoneInfo("America/New_York")
         now_et = datetime.now(et_tz)
-        timestamp = now_et.strftime('%Y-%m/%d %H:%M ET')
+        timestamp = now_et.strftime('%Y-%m-%d %H:%M ET')
 
         if not self._records:
             print(f"\n📌 {title} [{timestamp}]: No decisions recorded")

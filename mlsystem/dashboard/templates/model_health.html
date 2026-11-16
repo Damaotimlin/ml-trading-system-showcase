@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+    <section class="dashboard-group">
+        <h2>Model Health</h2>
+        <p class="lead">Each combo has to pass three checks before it can vote: tuning that converged, the generalization
+            gate on unseen data, and a live score built only from predictions that have already been graded.</p>
+        <div class="table-wrap">
+            <table class="compact" id="health">
+                <thead>
+                    <tr>
+                        <th>Combo</th>
+                        <th class="num">Features</th>
+                        <th class="num">Tuning trials</th>
+                        <th class="num">In-sample edge</th>
+                        <th class="num">Out-of-sample edge</th>
+                        <th>Gate</th>
+                        <th class="num">Graded</th>
+                        <th class="num">Score</th>
+                        <th class="num">Hit-rate floor</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <p class="lead small">Edge = share of correct directions minus 50%. Admission needs a score of at least
+            {{ '%.2f'|format(snapshot.thresholds.min_score) }} and a hit-rate floor of at least
+            {{ '%.0f'|format(snapshot.thresholds.min_hit_floor * 100) }}% (demo thresholds).</p>
+    </section>
+{% endblock %}
