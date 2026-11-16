@@ -27,10 +27,10 @@
         <a class="link-btn{% if page == 'dashboard' %} active{% endif %}" href="{{ url_for('index') }}">Predictions</a>
         <a class="link-btn{% if page == 'health' %} active{% endif %}" href="{{ url_for('model_health') }}">Model Health</a>
         <a class="link-btn" href="{{ url_for('api_snapshot') }}" target="_blank" rel="noopener">Snapshot JSON</a>
-        <span class="as-of">as of <span id="as-of">{{ snapshot.meta.as_of }}</span> (synthetic clock)</span>
+        <span class="as-of">as of <span id="as-of">{{ snapshot.meta.as_of }} ET</span> (replay)</span>
     </div>
     <p class="notice"><strong>Synthetic data.</strong> Every number on this page comes from a seeded random series and
-        stand-in models. It shows how the dashboard is laid out, not how the real system performs.</p>
+        stand-in models; the prices are not real market prices. It shows how the dashboard is laid out, not how the real system performs.</p>
     {% block content %}{% endblock %}
     <script id="snapshot" type="application/json">{{ snapshot|tojson }}</script>
     <script src="{{ url_for('static', filename='app.js') }}"></script>

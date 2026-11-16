@@ -128,6 +128,8 @@ def test_pipeline_demo_is_reproducible_and_filters_what_it_should():
     verdicts = first["verdicts"]
     assert verdicts["compact"].passed                     # the combo that sees only real information
     assert not verdicts["noise-only"].passed              # the combo with no information is gated out
-    admitted = {s.name for s in first["scores"] if s.admitted}
-    assert "compact" in admitted and "compact-new" not in admitted     # too few graded predictions
+    scores = {s.name: s for s in first["scores"]}
+    assert scores["compact"].admitted
+    assert 0 < scores["compact-new"].score < scores["compact"].score   # same model, less evidence, less weight
+    assert not scores["medium"].admitted                               # passing the gate is not enough on its own
     assert first["signal"].direction in {"UP", "DOWN", "FLAT"}

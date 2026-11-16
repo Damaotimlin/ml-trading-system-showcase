@@ -3,12 +3,12 @@
 {% block content %}
     <div class="indicators">
         <div class="card" id="card-signal">
-            <h3>Signal for next bar</h3>
+            <h3>Predicted trend · next <span data-field="signal-horizon"></span></h3>
             <div class="big" data-field="signal-direction">–</div>
             <div class="sub" data-field="signal-detail"></div>
         </div>
         <div class="card">
-            <h3>Recent directional calls</h3>
+            <h3>Earlier trend calls</h3>
             <div class="big" data-field="calls-rate">–</div>
             <div class="sub" data-field="calls-detail"></div>
         </div>
@@ -25,14 +25,26 @@
     </div>
 
     <section class="dashboard-group">
-        <h2>Prediction: {{ snapshot.meta.target }} <span class="pill">{{ snapshot.meta.interval }}</span></h2>
+        <div class="group-head">
+            <h2>Prediction: {{ snapshot.meta.target }} <span class="pill">synthetic prices</span></h2>
+            <div class="group-tools">
+                <span class="watch"><span id="trend-badge" class="trend-badge">–</span><span id="trend-detail"></span></span>
+                <label class="opacity">Opacity
+                    <input id="opacity" type="range" min="20" max="100" value="100"><span id="opacity-value">100%</span>
+                </label>
+            </div>
+        </div>
         <div class="chart-wrap">
             <div class="legend">
-                <span><i class="swatch actual"></i>Actual</span>
-                <span><i class="swatch predicted"></i>Ensemble prediction (made one bar earlier)</span>
-                <span class="note">No prediction is drawn until a combo has earned its vote.</span>
+                <button type="button" data-series="live"><i class="swatch live"></i>Live</button>
+                <button type="button" data-series="pred"><i class="swatch pred">×</i>Pred (open forecasts)</button>
+                <button type="button" data-series="avg"><i class="swatch avg"></i>AvgPred</button>
+                <button type="button" data-series="premarket"><i class="swatch lock-pre"></i>Pre-market Locks</button>
+                <button type="button" data-series="midpoint"><i class="swatch lock-mid"></i>Midpoint Locks</button>
+                <button type="button" data-series="flat"><i class="swatch flat"></i>Flat Zone</button>
+                <button type="button" data-series="regular"><i class="swatch lock-regular"></i>Regular Locks</button>
             </div>
-            <div id="chart" class="chart" role="img" aria-label="Actual close and ensemble prediction"></div>
+            <div id="chart" class="chart" role="img" aria-label="Live price, average prediction running past the latest bar, and forecast paths locked during each session"></div>
             <div id="chart-tip" class="chart-tip" hidden></div>
         </div>
 
@@ -41,7 +53,10 @@
                 <select id="filter-model"><option value="">All</option></select>
             </label>
             <label title="Show only predictions made while the combo's score was at least this value">Min combo score
-                <input id="filter-score" type="number" min="0" max="1" step="0.01" value="0">
+                <input id="filter-score" type="number" min="-1" max="1" step="0.01" placeholder="any">
+            </label>
+            <label>Bars ahead
+                <select id="filter-horizon"><option value="">All</option></select>
             </label>
             <label>Result
                 <select id="filter-result"><option value="">All</option><option value="hit">Right direction</option><option value="miss">Wrong direction</option></select>
@@ -53,9 +68,10 @@
             <table class="compact" id="predictions">
                 <thead>
                     <tr>
-                        <th data-key="live_time">Live datetime</th>
-                        <th data-key="live_value" class="num">Live value</th>
-                        <th data-key="predict_time">Predict datetime</th>
+                        <th data-key="live_time">Made at</th>
+                        <th data-key="live_value" class="num">Value then</th>
+                        <th data-key="predict_time">Predicted for</th>
+                        <th data-key="bars_ahead" class="num">Bars ahead</th>
                         <th data-key="predicted_value" class="num">Predicted value</th>
                         <th data-key="diff_pct" class="num">Diff %</th>
                         <th data-key="interval">Interval</th>

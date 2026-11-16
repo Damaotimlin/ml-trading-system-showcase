@@ -4,7 +4,7 @@ Tune -> gate -> score -> ensemble -> decide, end to end on synthetic data:
     python -m mlsystem.quality.examples.pipeline_demo
 
 Everything here is generated from a fixed random seed: a noisy series whose next
-value depends weakly on 3 of 40 features. Four ridge-regression "combos" stand
+value depends weakly on 3 of 40 slow-moving features. Four ridge-regression "combos" stand
 in for the neural networks of the full system; what the demo shows is the
 quality-control path around them, which is the same shape as the real one.
 No market data, strategy or production threshold is involved.
@@ -22,6 +22,7 @@ from mlsystem.quality import (ComboRecord, ConvergenceTracker, FoldResult, GateP
                               ScorePolicy, build_signal, select_combos, walk_forward_splits)
 
 SEED = 7
+PERSISTENCE = 0.9                       # feature autocorrelation: what makes a multi-step trend forecastable
 N_SAMPLES, N_FEATURES = 1400, 40
 TUNE_END, GATE_END = 800, 1100          # tune | gate (never seen while tuning) | live track record
 TRAIN_WINDOW, EMBARGO = 120, 2
@@ -37,7 +38,13 @@ FLAT_BAND = 0.05
 
 
 def make_data(rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:
-    features = rng.standard_normal((N_SAMPLES, N_FEATURES))
+    """Features are slow-moving (AR(1)), so the drift they imply persists for a while and can be forecast
+    several steps ahead. Row t of the features is known before step t; target[t] is the move during step t."""
+    shocks = rng.standard_normal((N_SAMPLES, N_FEATURES))
+    features = np.empty_like(shocks)
+    features[0] = shocks[0]
+    for t in range(1, N_SAMPLES):
+        features[t] = PERSISTENCE * features[t - 1] + np.sqrt(1 - PERSISTENCE ** 2) * shocks[t]
     target = features[:, :3] @ np.array([0.30, 0.22, -0.18]) + rng.standard_normal(N_SAMPLES)
     return features, target
 

@@ -27,4 +27,18 @@
             {{ '%.2f'|format(snapshot.thresholds.min_score) }} and a hit-rate floor of at least
             {{ '%.0f'|format(snapshot.thresholds.min_hit_floor * 100) }}% (demo thresholds).</p>
     </section>
+    <section class="dashboard-group" style="margin-top: 16px;">
+        <h2>Forecast skill by horizon</h2>
+        <p class="lead">The further ahead the ensemble looks, the less it knows. Only calls whose outcome is already
+            known are counted; calls at longer horizons overlap, so they are not independent.</p>
+        <div class="table-wrap">
+            <table class="compact" id="horizon-skill">
+                <thead>
+                    <tr><th class="num">Bars ahead</th><th class="num">Time ahead</th><th class="num">Calls graded</th>
+                        <th class="num">Right direction</th><th>Hit rate</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
 {% endblock %}
