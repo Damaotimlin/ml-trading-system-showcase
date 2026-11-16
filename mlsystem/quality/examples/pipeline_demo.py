@@ -21,7 +21,9 @@ from mlsystem.decision_engine.examples.example_nodes import example_registry
 from mlsystem.quality import (ComboRecord, ConvergenceTracker, FoldResult, GatePolicy, GeneralizationGate, Member,
                               ScorePolicy, build_signal, select_combos, walk_forward_splits)
 
-SEED = 7
+# The seed was picked by looking at the price path alone: the first seed whose final week has both rising and
+# falling days, so the dashboard replay is not mostly flat. Model results played no part in the choice.
+SEED = 162
 PERSISTENCE = 0.9                       # feature autocorrelation: what makes a multi-step trend forecastable
 N_SAMPLES, N_FEATURES = 1400, 40
 TUNE_END, GATE_END = 800, 1100          # tune | gate (never seen while tuning) | live track record

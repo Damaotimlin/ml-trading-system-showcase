@@ -95,27 +95,28 @@ python -m mlsystem.dashboard                      # demo dashboard at http://127
 
 ```text
 1) Tune each combo (random search, stops on plateau)
-   compact     alpha=   5.487  best validation edge +0.067  stopped after 16 of 80 trials
-   medium      alpha= 732.272  best validation edge +0.037  stopped after 21 of 80 trials
-   wide        alpha=  94.418  best validation edge +0.077  stopped after 30 of 80 trials
-   noise-only  alpha=   3.788  best validation edge +0.083  stopped after 20 of 80 trials
+   compact     alpha=  13.184  best validation edge +0.150  stopped after 16 of 80 trials
+   medium      alpha= 128.266  best validation edge +0.073  stopped after 21 of 80 trials
+   wide        alpha= 527.901  best validation edge +0.050  stopped after 22 of 80 trials
+   noise-only  alpha= 197.473  best validation edge +0.023  stopped after 27 of 80 trials
 
 2) Generalization gate (walk-forward on data the tuner never saw)
-   compact     in-sample +0.131  out-of-sample +0.130  -> PASS
-   medium      in-sample +0.117  out-of-sample +0.090  -> PASS
-   wide        in-sample +0.175  out-of-sample +0.083  -> PASS
-   noise-only  in-sample +0.146  out-of-sample -0.010  -> REJECT: out-of-sample skill -0.010 not above +0.020; only 50% of folds positive (need 60%); kept -7% of in-sample skill (need 40%)
+   compact     in-sample +0.128  out-of-sample +0.090  -> PASS
+   medium      in-sample +0.133  out-of-sample +0.073  -> PASS
+   wide        in-sample +0.144  out-of-sample +0.063  -> PASS
+   noise-only  in-sample +0.157  out-of-sample -0.023  -> REJECT: out-of-sample skill -0.023 not above +0.020; only 33% of folds positive (need 60%); kept -15% of in-sample skill (need 40%)
 
 3) Grade the survivors on a live-style track record, then score them
-   compact     156/250 hits  raw +0.248  shrunk +0.214  hit-rate floor 56.3%  -> admitted
-   compact-new   7/8   hits  raw +0.750  shrunk +0.125  hit-rate floor 52.9%  -> admitted
-   medium      134/250 hits  raw +0.072  shrunk +0.062  hit-rate floor 47.4%  -> score 0.062 below 0.080
-   wide        129/250 hits  raw +0.032  shrunk +0.028  hit-rate floor 45.4%  -> score 0.028 below 0.080
+   compact     158/250 hits  raw +0.264  shrunk +0.228  hit-rate floor 57.1%  -> admitted
+   wide        151/250 hits  raw +0.208  shrunk +0.179  hit-rate floor 54.2%  -> admitted
+   medium      146/250 hits  raw +0.168  shrunk +0.145  hit-rate floor 52.2%  -> admitted
+   compact-new   6/8   hits  raw +0.500  shrunk +0.083  hit-rate floor 40.9%  -> hit-rate floor 40.9% below 50.0%
 
 4) Ensemble the admitted combos into one signal for the next step
-   compact     forecast -1.218  weight 0.214
-   compact-new forecast -1.218  weight 0.125
-   signal: DOWN  confidence 1.00  forecast -1.218  (actual next value -1.913)
+   compact     forecast -0.558  weight 0.228
+   wide        forecast -0.244  weight 0.179
+   medium      forecast -0.283  weight 0.145
+   signal: DOWN  confidence 1.00  forecast -0.384  (actual next value -1.178)
 
 5) Hand the signal to the YAML decision tree
    Confidence -> PASS - 1.00 vs min 0.60      Final outcome: act
@@ -124,11 +125,11 @@ python -m mlsystem.dashboard                      # demo dashboard at http://127
 What to notice:
 
 - **Early stopping** — every search ends well short of its 80-trial budget once it stops improving.
-- **The gate** — the combo with no information looks fine in-sample (+0.146) and is rejected on out-of-sample evidence.
-- **Passing the gate is not enough** — `medium` and `wide` got through, but their live track record is too weak, so they get no vote.
-- **Shrinkage** — `compact-new` has the best raw average (+0.750) from only 8 graded predictions; it is cut to +0.125, a little over half the weight of the proven `compact`.
+- **The gate** — the combo with no information has the best in-sample number of all (+0.157) and is rejected on out-of-sample evidence.
+- **Honest in-sample vs. out-of-sample** — every survivor keeps only part of its in-sample skill; the gate asks for at least 40%.
+- **Shrinkage** — `compact-new` has the best raw average (+0.500) but only 8 graded predictions; its score is cut to +0.083 and its hit-rate floor (40.9%) keeps it out of the ensemble for now.
 
-The numbers describe the synthetic series only. They say nothing about the performance of the real system, which is deliberately not published here.
+The numbers describe the synthetic series only. They say nothing about the performance of the real system, which is deliberately not published here. The random seed was chosen by looking at the price path alone (a final week with both rising and falling days, so the dashboard replay is not mostly flat); model results played no part in the choice.
 
 ### The demo dashboard
 
@@ -140,7 +141,7 @@ The numbers describe the synthetic series only. They say nothing about the perfo
 - **Locks** — at the pre-market open, the regular open and the session midpoint, the ensemble's forecast path is frozen and drawn as a dashed line with its flat zone. A lock is never redrawn afterwards, which is how the real system avoids grading itself on revised predictions.
 - **Forecasts reach ahead** — every combo forecasts 30 minutes to 6.5 hours ahead with one directly fitted model per horizon.
 - **Predictions page** — the trend expected next, how earlier trend calls turned out, how many combos are in the ensemble, and the decision-tree trail; below the chart, a sortable, filterable table of graded predictions by horizon, with CSV export.
-- **Model Health page** — every combo with its tuning effort, in-sample vs. out-of-sample skill, gate verdict, live score and the reason it is or is not allowed to vote; plus forecast skill by horizon, which fades the further ahead the ensemble looks.
+- **Model Health page** — every combo with its tuning effort, in-sample vs. out-of-sample skill, gate verdict, live score and the reason it is or is not allowed to vote; plus how the ensemble's calls turned out at each horizon. The replayed week trends strongly, which flatters the longer horizons.
 - **No lookahead in the replay** — a combo's weight uses only predictions already graded, and a model for horizon *h* is never trained on a label that ends after its training window; `tests/test_dashboard.py` rewrites every later bar and checks the page does not change, and that a lock made earlier is identical in later snapshots.
 - **No external assets** — the chart is inline SVG and the page loads nothing from a CDN.
 

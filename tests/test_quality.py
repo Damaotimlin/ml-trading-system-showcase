@@ -131,5 +131,5 @@ def test_pipeline_demo_is_reproducible_and_filters_what_it_should():
     scores = {s.name: s for s in first["scores"]}
     assert scores["compact"].admitted
     assert 0 < scores["compact-new"].score < scores["compact"].score   # same model, less evidence, less weight
-    assert not scores["medium"].admitted                               # passing the gate is not enough on its own
+    assert not scores["compact-new"].admitted                          # ...and not enough of it to vote yet
     assert first["signal"].direction in {"UP", "DOWN", "FLAT"}
